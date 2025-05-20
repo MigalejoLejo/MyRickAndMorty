@@ -6,12 +6,15 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 class CharacterListViewModel: ObservableObject {
     @Published var characters: [Character] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var errorIcon: String?
+    @Published var errorColor: Color?
     
     @Published var filter = CharacterFilter()
     @Published var isShowingFilterSheet = false
@@ -42,7 +45,15 @@ class CharacterListViewModel: ObservableObject {
             nextPageURL = URL(string: response.info.next ?? "")
             errorMessage = nil
         } catch {
-            errorMessage = "Error loading characters: \(error.localizedDescription)"
+            if error.localizedDescription.contains("The data couldn’t be read because it is missing.") {
+                errorMessage = "No character found"
+                errorIcon = "person.crop.circle.badge.questionmark"
+                errorColor = .blue
+            } else {
+                errorMessage = "Error loading characters: \(error.localizedDescription)"
+                errorIcon = "exclamationmark.triangle.fill"
+                errorColor = .red
+            }
             print("Error loading characters:", error)
         }
     }
@@ -78,11 +89,13 @@ class CharacterListViewModel: ObservableObject {
         }
     }
     
-    func retry () {
+    func retry () async {
         self.service = APIService.shared
         self.errorMessage = nil
         self.characters = []
         self.nextPageURL = nil
+        self.filter = CharacterFilter()
+        await self.loadMoreCharacters()
+        
     }
 }
-

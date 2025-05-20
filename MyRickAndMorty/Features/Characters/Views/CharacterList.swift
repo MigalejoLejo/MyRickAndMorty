@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CharacterList: View {
     @StateObject private var viewModel: CharacterListViewModel
-
+    
     init() {
         let service: CharacterService
         if CommandLine.arguments.contains("--UITest_ShowError") {
@@ -12,7 +12,7 @@ struct CharacterList: View {
         } else {
             service = APIService.shared
         }
-
+        
         _viewModel = StateObject(wrappedValue: CharacterListViewModel(service: service))
     }
     
@@ -31,14 +31,14 @@ struct CharacterList: View {
                 // CONTENT
                 LazyVStack(spacing: 16) {
                     ForEach(viewModel.characters, id: \.id) { character in                        NavigationLink {
-                            CharacterDetailView(character: character)
-                        } label: {
-                            CharacterCard(character: character)
-                                .onAppear{
-                                    viewModel.triggerLoadMoreCharacters(basedOn: character)
-                                }
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                        CharacterDetailView(character: character)
+                    } label: {
+                        CharacterCard(character: character)
+                            .onAppear{
+                                viewModel.triggerLoadMoreCharacters(basedOn: character)
+                            }
+                    }
+                    .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding()
@@ -48,7 +48,7 @@ struct CharacterList: View {
                         .padding()
                 }
             }
-
+            
             .navigationTitle("Characters")
             .toolbar {
                 Button {
@@ -79,11 +79,11 @@ struct ErrorMessage: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
+            Image(systemName:viewModel.errorIcon ?? "")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 40, height: 40)
-                .foregroundColor(.red)
+                .foregroundColor(viewModel.errorColor)
             
             Text("Oops! Something went wrong.")
                 .font(.headline)
@@ -96,8 +96,8 @@ struct ErrorMessage: View {
                 .padding(.horizontal)
             
             Button(action: {
-                viewModel.retry()
                 Task {
+                    await viewModel.retry()
                     await viewModel.loadInitialCharacters()
                 }
             }) {
