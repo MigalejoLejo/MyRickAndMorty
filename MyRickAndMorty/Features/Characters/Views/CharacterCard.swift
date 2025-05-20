@@ -11,7 +11,6 @@ struct CharacterCard: View {
     let character: Character
     
     var body: some View {
-        
         VStack(alignment: .leading, spacing: 8) {
             CardImage(imageURL: character.image)
             
@@ -31,11 +30,6 @@ struct CharacterCard: View {
     }
 }
 
-#Preview {
-    CharacterCard(character: .mock)
-}
-
-
 
 struct CardImage: View {
     let imageURL: String
@@ -52,6 +46,7 @@ struct CardImage: View {
         .clipShape(RoundedTopCorners(radius: 12))
     }
 }
+
 struct NameAndSpecies: View {
     let character: Character
     
@@ -69,7 +64,6 @@ struct NameAndSpecies: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
-        
     }
 }
 
@@ -91,4 +85,9 @@ struct GenderAndStatus: View {
                 .foregroundColor(character.statusColor)
         }
     }
+}
+
+
+#Preview {
+    CharacterCard(character: .mock)
 }

@@ -9,4 +9,5 @@
 enum APIError: Error {
     case invalidURL
     case noData
+    case requestFailed
 }

@@ -13,6 +13,13 @@ class CharacterListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    @Published var filter = CharacterFilter()
+    @Published var isShowingFilterSheet = false
+    
+    private var activeFilters: [String: String]? {
+        filter.asQueryParameters
+    }
+    
     var hasMorePages: Bool {
         nextPageURL != nil
     }
@@ -30,7 +37,7 @@ class CharacterListViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let response = try await service.fetchCharacters()
+            let response = try await service.fetchCharacters(filters: activeFilters)
             characters = response.results
             nextPageURL = URL(string: response.info.next ?? "")
             errorMessage = nil
@@ -46,24 +53,36 @@ class CharacterListViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let response = try await service.fetchCharacters(from: nextURL)
+            let response = try await service.fetchCharacters(from: nextURL, filters: activeFilters)
             characters += response.results
             nextPageURL = URL(string: response.info.next ?? "")
-            errorMessage =  nil
+            errorMessage = nil
         } catch {
             errorMessage = "Error loading characters: \(error.localizedDescription)"
             print("Error loading more characters:", error)
         }
     }
     
+    func applyFilters () async {
+        characters = []
+        await loadInitialCharacters()
+    }
+    
     func triggerLoadMoreCharacters(basedOn character: Character) {
         guard !isLoading,
               nextPageURL != nil,
               character.id == characters.last?.id else { return }
-
+        
         Task {
             await loadMoreCharacters()
         }
+    }
+    
+    func retry () {
+        self.service = APIService.shared
+        self.errorMessage = nil
+        self.characters = []
+        self.nextPageURL = nil
     }
 }
 

@@ -29,6 +29,23 @@
 		7E2473FD2DDCF8030083AD4F /* MyRickAndMortyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyRickAndMortyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7E2474922DDD44830083AD4F /* Exceptions for "MyRickAndMortyTests" folder in "MyRickAndMorty" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Mocks/APIServiceMock.swift,
+			);
+			target = 7E2473E22DDCF8020083AD4F /* MyRickAndMorty */;
+		};
+		7E2474932DDD44830083AD4F /* Exceptions for "MyRickAndMortyTests" folder in "MyRickAndMortyUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Mocks/APIServiceMock.swift,
+			);
+			target = 7E2473FC2DDCF8030083AD4F /* MyRickAndMortyUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7E2473E52DDCF8020083AD4F /* MyRickAndMorty */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -37,6 +54,10 @@
 		};
 		7E2473F62DDCF8030083AD4F /* MyRickAndMortyTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7E2474922DDD44830083AD4F /* Exceptions for "MyRickAndMortyTests" folder in "MyRickAndMorty" target */,
+				7E2474932DDD44830083AD4F /* Exceptions for "MyRickAndMortyTests" folder in "MyRickAndMortyUITests" target */,
+			);
 			path = MyRickAndMortyTests;
 			sourceTree = "<group>";
 		};
@@ -131,6 +152,7 @@
 				7E2473F52DDCF8030083AD4F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				7E2473E52DDCF8020083AD4F /* MyRickAndMorty */,
 				7E2473F62DDCF8030083AD4F /* MyRickAndMortyTests */,
 			);
 			name = MyRickAndMortyTests;
@@ -154,6 +176,7 @@
 				7E2473FF2DDCF8030083AD4F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				7E2473E52DDCF8020083AD4F /* MyRickAndMorty */,
 				7E2474002DDCF8030083AD4F /* MyRickAndMortyUITests */,
 			);
 			name = MyRickAndMortyUITests;

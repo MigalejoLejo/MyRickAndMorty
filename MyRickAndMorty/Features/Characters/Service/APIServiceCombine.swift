@@ -14,12 +14,10 @@ final class APIServiceCombine: CharacterService {
 
     private let baseURL = "https://rickandmortyapi.com/api/character"
 
-    func fetchCharacters(from url: URL? = nil) async throws -> CharacterResponse {
-        let urlToUse = url ?? URL(string: baseURL)
-
-        guard let finalURL = urlToUse else {
-            throw APIError.invalidURL
-        }
+    func fetchCharacters(from url: URL?, filters: [String: String]?) async throws -> CharacterResponse {
+        let base = url ?? URL(string: baseURL)
+        
+        let finalURL = try getFinalURL(base: base, filters: filters)
 
         return try await withCheckedThrowingContinuation { continuation in
             URLSession.shared.dataTaskPublisher(for: finalURL)

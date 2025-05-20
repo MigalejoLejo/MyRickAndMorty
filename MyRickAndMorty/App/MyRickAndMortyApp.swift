@@ -11,7 +11,7 @@ import SwiftUI
 struct MyRickAndMortyApp: App {
     var body: some Scene {
         WindowGroup {
-            CharacterListView()
+            CharacterList()
         }
     }
 }

@@ -37,6 +37,9 @@ struct CharacterDetailView: View {
                 characterInfo(title: "Origin", value: character.origin.name)
                 characterInfo(title: "Last Location", value: character.location.name)
 
+                
+               
+
                 Spacer()
             }
             .padding()
@@ -49,10 +52,10 @@ struct CharacterDetailView: View {
     private func characterInfo(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
+                .font(.title3)
                 .foregroundColor(.secondary)
             Text(value)
-                .font(.body)
+                .font(.title)
         }
     }
 }
