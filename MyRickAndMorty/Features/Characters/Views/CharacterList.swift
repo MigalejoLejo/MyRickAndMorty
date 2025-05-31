@@ -8,54 +8,57 @@ struct CharacterList: View {
     
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                // ERROR MESSAGE
-                if Characters.characters.isEmpty, let error = Characters.errorMessage {
-                    ErrorMessage(viewModel: Characters, error: error)
-                }
-                // CONTENT
-                LazyVStack(spacing: 16) {
-                    ForEach(Characters.characters.filter { favoritesOnly ? $0.isFavorite : (!Characters.onlyFavorites || $0.isFavorite) }, id: \.id) { character in
-                        CharacterCard(character: character, favButtonAction: {
-                            Characters.toggleFavorite(for: character.id)
-                        })
-                        .onAppear{
-                            Characters.triggerLoadMoreCharacters(basedOn: character)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+        ScrollView {
+            // ERROR MESSAGE
+            if Characters.characters.isEmpty, let error = Characters.errorMessage {
+                ErrorMessage(viewModel: Characters, error: error)
+            }
+            // CONTENT
+            LazyVStack(spacing: 16) {
+                ForEach(Characters.characters.filter { favoritesOnly ? $0.isFavorite : (!Characters.onlyFavorites || $0.isFavorite) }, id: \.id) { character in
+                    CharacterCard(character: character, favButtonAction: {
+                        Characters.toggleFavorite(for: character.id)
+                    })
+                    .onAppear{
+                        Characters.triggerLoadMoreCharacters(basedOn: character)
                     }
-                }
-                .padding()
-                
-                if Characters.isLoading {
-                    ProgressView()
-                        .padding()
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
+            .padding()
             
-            .navigationTitle(title)
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        Characters.isShowingFilterSheet = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
+            if Characters.isLoading {
+                ProgressView()
+                    .padding()
+            }
+        }
+        .navigationBarTitleDisplayMode(.large)
+        .navigationTitle(title)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    Characters.isShowingFilterSheet = true
+                } label: {
+                    Image(systemName:Characters.filter.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                        .foregroundColor(Characters.filter.isEmpty ? .primary : .blue)
+
+                }
+                .buttonStyle(.plain)
+
+                
+                if !favoritesOnly {
+                    Toggle(isOn: $Characters.onlyFavorites) {
+                        Image(systemName: Characters.onlyFavorites ? "heart.fill" : "heart")
+                            .foregroundColor( Characters.onlyFavorites ? .red : .black)
                     }
-                    
-                    if !favoritesOnly {
-                        Toggle(isOn: $Characters.onlyFavorites) {
-                            Image(systemName: Characters.onlyFavorites ? "heart.fill" : "heart")
-                                .foregroundColor(.red)
-                        }
-                        .toggleStyle(.automatic)
-                        .padding(.trailing, 20)
-                    }
+                    .padding(.trailing, 20)
+                    .toggleStyle(.button)
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
-            .task {
-                await Characters.loadInitialCharacters()
-            }
+        }
+        .task {
+            await Characters.loadInitialCharacters()
         }
         .characterFilterSheet(using: Characters)
     }
@@ -66,9 +69,12 @@ struct CharacterList: View {
 
 
 #Preview {
-    CharacterList()
-        .environmentObject(CharacterListViewModel())
+    NavigationView{
+        CharacterList()
+            .environmentObject(CharacterListViewModel())
+    }
 }
+    
 
 struct ErrorMessage: View {
     let viewModel: CharacterListViewModel

@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct MainScreen: View {
-    @State private var selectedTab = 1
     @StateObject private var Characters: CharacterListViewModel
-    
+    @State var showSettings = false
     init() {
         let service: CharacterService
         if CommandLine.arguments.contains("--UITest_ShowError") {
@@ -24,31 +23,31 @@ struct MainScreen: View {
         _Characters = StateObject(wrappedValue: CharacterListViewModel(service: service))
     }
     
-    
     var body: some View {
-        TabView(selection: $selectedTab) {
-            
-            CharacterList()
-                .environmentObject(Characters)
-                .tabItem {
-                    VStack {
-                        Image(systemName: "person.2")
-                        Text("Characters")
+        NavigationView{
+            ScrollView{
+                VStack{
+                    ForEach(NavigationOptions.allCases, id: \.self){ option in
+                        NavigationCard(for: option)
                     }
+                    
+                    Spacer()
+                    FooterDisclaimer()
                 }
-                .tag(1)
-            
-            CharacterList(title: "Favorites", favoritesOnly: true)
-                .environmentObject(Characters)
-
-                .tabItem {
-                    VStack {
-                        Image(systemName: "heart")
-                        Text("Favorites")
+            }
+            .navigationTitle("Choose your portal")
+            .toolbar {
+                ToolbarItem {
+                    Button {
+                        showSettings.toggle()
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
                     }
+                    .buttonStyle(.plain)
                 }
-                .tag(2)
+            }        .settingsSheet(isPresented: $showSettings)
         }
+        .environmentObject(Characters)
     }
 }
 
