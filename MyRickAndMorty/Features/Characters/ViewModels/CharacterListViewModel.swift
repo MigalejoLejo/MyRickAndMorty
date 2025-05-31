@@ -11,6 +11,7 @@ import SwiftUI
 @MainActor
 class CharacterListViewModel: ObservableObject {
     @Published var characters: [Character] = []
+    @Published var onlyFavorites: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var errorIcon: String?
@@ -34,6 +35,17 @@ class CharacterListViewModel: ObservableObject {
         self.service = service
     }
     
+    func toggleFavorite(for characterID: Int) {
+        FavoriteStore.shared.toggle(characterID)
+        if let index = characters.firstIndex(where: { $0.id == characterID }) {
+            characters[index].isFavorite.toggle()
+        }
+    }
+    
+    func toggleOnlyFavorites () {
+        onlyFavorites = !onlyFavorites
+    }
+    
     
     func loadInitialCharacters() async {
         isLoading = true
@@ -41,7 +53,11 @@ class CharacterListViewModel: ObservableObject {
         
         do {
             let response = try await service.fetchCharacters(filters: activeFilters)
-            characters = response.results
+            let favorites = FavoriteStore.shared.all()
+            
+            characters = response.results.map { apiCharacter in
+                apiCharacter.toCharacter(isFavorite: favorites.contains(apiCharacter.id))
+            }
             nextPageURL = URL(string: response.info.next ?? "")
             errorMessage = nil
         } catch {
@@ -65,7 +81,12 @@ class CharacterListViewModel: ObservableObject {
         
         do {
             let response = try await service.fetchCharacters(from: nextURL, filters: activeFilters)
-            characters += response.results
+            let favorites = FavoriteStore.shared.all()
+            
+            characters = response.results.map { apiCharacter in
+                apiCharacter.toCharacter(isFavorite: favorites.contains(apiCharacter.id))
+            }
+            
             nextPageURL = URL(string: response.info.next ?? "")
             errorMessage = nil
         } catch {

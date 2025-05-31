@@ -2,6 +2,7 @@ import Foundation
 
 final class APIService: CharacterService {
     static let shared = APIService()
+    
     private init() {}
 
     private let baseURL = "https://rickandmortyapi.com/api/character"
@@ -13,7 +14,7 @@ final class APIService: CharacterService {
 
         let (data, _) = try await URLSession.shared.data(from: finalURL)
         let decodedResponse = try JSONDecoder().decode(CharacterResponse.self, from: data)
-
+                       
         return decodedResponse
     }
 }

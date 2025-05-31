@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     let character: Character
+    let favButtonAction: () -> Void
 
     var body: some View {
         ScrollView {
@@ -24,10 +25,13 @@ struct CharacterDetailView: View {
                         .frame(maxWidth: .infinity, minHeight: 200)
                 }
 
-                Text(character.name)
-                    .font(.largeTitle)
-                    .bold()
-
+                HStack{
+                    Text(character.name)
+                        .font(.largeTitle)
+                        .bold()
+                    Spacer()
+                    FavButton(isActive: character.isFavorite, action: favButtonAction) 
+                }
                 characterInfo(title: "Status", value: character.status)
                 characterInfo(title: "Species", value: character.species)
                 if !character.type.isEmpty {
@@ -64,5 +68,7 @@ struct CharacterDetailView: View {
 
 
 #Preview {
-    CharacterDetailView(character: .mock)
+    CharacterDetailView(character: .mock) {
+        print("fav button pressed on details view")
+    }
 }

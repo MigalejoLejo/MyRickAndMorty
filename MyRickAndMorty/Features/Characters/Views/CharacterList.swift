@@ -1,67 +1,63 @@
 import SwiftUI
 
 struct CharacterList: View {
-    @StateObject private var viewModel: CharacterListViewModel
+    @EnvironmentObject var Characters: CharacterListViewModel
+    var title: String = "Characters"
+    var favoritesOnly: Bool = false
     
-    init() {
-        let service: CharacterService
-        if CommandLine.arguments.contains("--UITest_ShowError") {
-            service = APIServiceMock(shouldFail: true)
-        } else if CommandLine.arguments.contains("--UITest_SuccessState") {
-            service = APIServiceMock(shouldFail: false)
-        } else {
-            service = APIService.shared
-        }
-        
-        _viewModel = StateObject(wrappedValue: CharacterListViewModel(service: service))
-    }
     
     
     var body: some View {
         NavigationView {
-            
             ScrollView {
-                
                 // ERROR MESSAGE
-                if viewModel.characters.isEmpty, let error = viewModel.errorMessage {
-                    ErrorMessage(viewModel: viewModel, error: error)
+                if Characters.characters.isEmpty, let error = Characters.errorMessage {
+                    ErrorMessage(viewModel: Characters, error: error)
                 }
-                
-                
                 // CONTENT
                 LazyVStack(spacing: 16) {
-                    ForEach(viewModel.characters, id: \.id) { character in                        NavigationLink {
-                        CharacterDetailView(character: character)
-                    } label: {
-                        CharacterCard(character: character)
-                            .onAppear{
-                                viewModel.triggerLoadMoreCharacters(basedOn: character)
-                            }
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    ForEach(Characters.characters.filter { favoritesOnly ? $0.isFavorite : (!Characters.onlyFavorites || $0.isFavorite) }, id: \.id) { character in
+                        CharacterCard(character: character, favButtonAction: {
+                            Characters.toggleFavorite(for: character.id)
+                        })
+                        .onAppear{
+                            Characters.triggerLoadMoreCharacters(basedOn: character)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding()
                 
-                if viewModel.isLoading {
+                if Characters.isLoading {
                     ProgressView()
                         .padding()
                 }
             }
             
-            .navigationTitle("Characters")
+            .navigationTitle(title)
             .toolbar {
-                Button {
-                    viewModel.isShowingFilterSheet = true
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        Characters.isShowingFilterSheet = true
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+                    
+                    if !favoritesOnly {
+                        Toggle(isOn: $Characters.onlyFavorites) {
+                            Image(systemName: Characters.onlyFavorites ? "heart.fill" : "heart")
+                                .foregroundColor(.red)
+                        }
+                        .toggleStyle(.automatic)
+                        .padding(.trailing, 20)
+                    }
                 }
             }
             .task {
-                await viewModel.loadInitialCharacters()
+                await Characters.loadInitialCharacters()
             }
         }
-        .characterFilterSheet(using: viewModel)
+        .characterFilterSheet(using: Characters)
     }
 }
 
@@ -71,6 +67,7 @@ struct CharacterList: View {
 
 #Preview {
     CharacterList()
+        .environmentObject(CharacterListViewModel())
 }
 
 struct ErrorMessage: View {

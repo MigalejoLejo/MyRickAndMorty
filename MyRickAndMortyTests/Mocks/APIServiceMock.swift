@@ -18,7 +18,7 @@ class APIServiceMock: CharacterService {
         if shouldFail {
             throw URLError(.badServerResponse)
         } else {
-            let mockCharacter = Character(
+            let mockCharacter = APICharacter(
                 id: 1,
                 name: "Test",
                 status: "Alive",
